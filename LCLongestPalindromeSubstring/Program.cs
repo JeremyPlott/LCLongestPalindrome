@@ -1,4 +1,5 @@
-﻿using System;
+using System;
+using System.Linq;
 
 namespace LCLongestPalindromeSubstring
 {
@@ -6,69 +7,75 @@ namespace LCLongestPalindromeSubstring
     {
         static void Main(string[] args)
         {
-            string s = "decbdbced";
+            string s = "djfhsasdfgjkl;;lkjgfdsaeure";
+            s = "cc";
+            LongestPalindrome(s);
 
-            if (s.Length == 0)
+            string LongestPalindrome(string s)
             {
-                Console.WriteLine(0);
-            }
-            if (s.Length == 1)
-            {
-                Console.WriteLine(1);
-            }
+                if (s.Length == 1) { return s; }
 
-            int longestSubstring = 0;
-            int currentCount = 1;
+                string currentPalindrome;
+                string longestPalindrome = String.Empty;
 
-            //odd pallindromes
-            for (int i = s.Length / 2, j = s.Length / 2; i < s.Length && j > 0; i++, j--)
-            {
-                if (i == j)
+                int leftIndex;
+                int rightIndex;
+                for (int letterIndex = 0; letterIndex < s.Length - 1; letterIndex++)
                 {
-                    continue;
-                }
+                    if (longestPalindrome.Length / 2 > s.Length - letterIndex + 1) { break; }
 
-                if (s[i].Equals(s[j]))
-                {
-                    currentCount += 2;
+                    currentPalindrome = string.Empty;
+                    leftIndex = letterIndex;
+                    rightIndex = letterIndex;
 
-                    if (currentCount > longestSubstring)
+                    if (s[letterIndex].Equals(s[letterIndex + 1]))
                     {
-                        longestSubstring = currentCount;
+                        var center = getCenter(s, rightIndex);
+                        currentPalindrome = center.Item1;
+                        rightIndex = center.Item2;
+                        leftIndex--;
+                    }
+
+                    //Console.WriteLine($"{s[leftIndex]} {s[rightIndex]}");
+                    while (leftIndex > -1 && rightIndex < s.Length && s[leftIndex].Equals(s[rightIndex]))
+                    {
+                        if (currentPalindrome.Equals(string.Empty))
+                        {
+                            currentPalindrome = s[rightIndex].ToString();
+                        }
+                        else
+                        {
+                            currentPalindrome = s[leftIndex] + currentPalindrome + s[rightIndex];
+                        }
+
+                        leftIndex--;
+                        rightIndex++;
+                    }
+
+                    if (currentPalindrome.Length > longestPalindrome.Length)
+                    {
+                        longestPalindrome = currentPalindrome;
                     }
                 }
-                else
-                {
-                    currentCount = 1;
-                    continue;
-                }
+
+                //speed test char array.reverse vs double concat
+                Console.WriteLine(longestPalindrome);
+                return longestPalindrome;
+
             }
 
-            currentCount = 2;
-
-            //even palindromes
-            for (int i = (s.Length / 2), j = (s.Length / 2) - 1; i < s.Length && j > 0; i++, j--)
+            (string, int) getCenter(string s, int currentIndex)
             {
-                if (i - 1 == j)
+                string center = s[currentIndex].ToString();
+                while (currentIndex < s.Length - 1 && s[currentIndex].Equals(s[currentIndex + 1]))
                 {
-                    continue;
+                    center += s[currentIndex];
+                    currentIndex++;
                 }
-                if (s[i].Equals(s[j]))
-                {
-                    currentCount += 2;
 
-                    if (currentCount > longestSubstring)
-                    {
-                        longestSubstring = currentCount;
-                    }
-                }
-                else
-                {
-                    currentCount = 2;
-                    continue;
-                }
+                return (center, currentIndex + 1);
             }
-            Console.WriteLine(longestSubstring);
         }
     }
+
 }
